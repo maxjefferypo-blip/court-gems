@@ -1,0 +1,9 @@
+# Netlify config for the Court Gems website (courtgems.co.uk).
+# Plain static site: no build step. Netlify publishes site/ as-is.
+# Shopify (headless) is called from the browser with the public Storefront API
+# token that is already in the pages, so no environment variables are needed.
+[build]
+  publish = "site"
+  command = ""
+
+# Extra headers also live in site/_headers (llms.txt, robots.txt).
