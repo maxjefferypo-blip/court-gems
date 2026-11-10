@@ -34,15 +34,18 @@
 
   /* ---------- Markup and styles ---------- */
   var css =
-    '.cg-signup{width:min(92vw,720px);max-height:92vh;padding:0;border:0;border-radius:24px;background:var(--cg-white);color:var(--text-body);font-family:var(--font-body);box-shadow:0 24px 80px rgba(22,10,61,.35);overflow:hidden}' +
+    '.cg-signup{position:fixed;inset:0;box-sizing:border-box;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:16px;border:0;background:transparent;overflow:auto;color:var(--text-body);font-family:var(--font-body)}' +
     '.cg-signup:focus{outline:0}' +
     '.cg-signup::backdrop{background:rgba(22,10,61,.55)}' +
-    '.cg-signup[open]{display:grid;grid-template-columns:1fr;animation:cg-signup-in .28s cubic-bezier(.2,.9,.3,1.2)}' +
+    '.cg-signup[open]{display:flex}' +
+    '.cg-signup__card{margin:auto;width:min(100%,720px);border-radius:24px;background:var(--cg-white);box-shadow:0 24px 80px rgba(22,10,61,.35);overflow:hidden;animation:cg-signup-in .28s cubic-bezier(.2,.9,.3,1.2)}' +
     '@keyframes cg-signup-in{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}' +
-    '@media (prefers-reduced-motion:reduce){.cg-signup[open]{animation:none}}' +
+    '@media (prefers-reduced-motion:reduce){.cg-signup__card{animation:none}}' +
     '.cg-signup__media{display:none;background:var(--cg-holo)}' +
     '.cg-signup__media img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.cg-signup__body{position:relative;padding:36px 24px 24px;display:flex;flex-direction:column;gap:12px;overflow:auto}' +
+    '.cg-signup__body{position:relative;padding:36px 24px 24px}' +
+    '.cg-signup__step{display:flex;flex-direction:column;gap:12px}' +
+    '.cg-signup__step[hidden]{display:none}' +
     '.cg-signup__close{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;border-radius:999px;background:transparent;color:var(--cg-indigo-700);font-size:26px;line-height:1;cursor:pointer}' +
     '.cg-signup__close:hover{background:var(--cg-lilac-50)}' +
     '.cg-signup__eyebrow{margin:0;font-weight:700;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--cg-iris-500)}' +
@@ -62,7 +65,7 @@
     '.cg-signup__code{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 10px 10px 20px;border:2px dashed var(--cg-lavender-400);border-radius:999px;background:var(--cg-lilac-50)}' +
     '.cg-signup__code b{font-family:var(--font-heading);font-size:22px;letter-spacing:2px;color:var(--cg-indigo-700)}' +
     '.cg-signup__copy{min-height:40px;padding:0 18px;border:0;border-radius:999px;background:var(--cg-indigo-700);color:#fff;font:inherit;font-weight:700;font-size:14px;cursor:pointer}' +
-    '@media (min-width:640px){.cg-signup[open]{grid-template-columns:5fr 6fr}.cg-signup__media{display:block}.cg-signup__body{padding:44px 36px 28px;justify-content:center;min-height:420px}}';
+    '@media (min-width:640px){.cg-signup__card{display:grid;grid-template-columns:5fr 6fr}.cg-signup__media{display:block}.cg-signup__body{box-sizing:border-box;padding:44px 36px 28px;display:flex;flex-direction:column;justify-content:center;min-height:420px}}';
 
   var dialog, shown = false;
   function build(){
@@ -71,10 +74,10 @@
     dialog.className = 'cg-signup';
     dialog.setAttribute('aria-labelledby', 'cgSignupTitle');
     dialog.innerHTML =
-      '<div class="cg-signup__media"><img src="' + IMAGE + '" alt="" loading="lazy"></div>' +
+      '<div class="cg-signup__card"><div class="cg-signup__media"><img src="' + IMAGE + '" alt="" loading="lazy"></div>' +
       '<div class="cg-signup__body">' +
         '<button class="cg-signup__close" type="button" data-signup-close aria-label="Close">&times;</button>' +
-        '<div data-signup-step="form" style="display:contents">' +
+        '<div class="cg-signup__step" data-signup-step="form">' +
           '<p class="cg-signup__eyebrow">Join the club</p>' +
           '<h2 class="cg-signup__title" id="cgSignupTitle">' + PERCENT + '% off your first order</h2>' +
           '<p class="cg-signup__text">Pop your email in and we’ll give you a code straight away. You’ll also hear about new designs and limited editions first.</p>' +
@@ -87,14 +90,14 @@
           '<p class="cg-signup__small">By signing up you agree to receive marketing emails from Court Gems. Unsubscribe any time.</p>' +
           '<button class="cg-signup__skip" type="button" data-signup-close>No thanks</button>' +
         '</div>' +
-        '<div data-signup-step="done" style="display:none" hidden>' +
+        '<div class="cg-signup__step" data-signup-step="done" hidden>' +
           '<p class="cg-signup__eyebrow">You’re in</p>' +
           '<h2 class="cg-signup__title">Here’s your ' + PERCENT + '% off</h2>' +
           '<p class="cg-signup__text">We’ll add it for you at checkout. Here’s the code in case you need it:</p>' +
           '<div class="cg-signup__code"><b>' + CODE + '</b><button class="cg-signup__copy" type="button">Copy</button></div>' +
           '<button class="cg-signup__btn" type="button" data-signup-close style="margin-top:8px">Keep shopping</button>' +
         '</div>' +
-      '</div>';
+      '</div></div>';
     document.body.appendChild(dialog);
 
     dialog.addEventListener('click', function(e){
@@ -155,8 +158,7 @@
   function done(){
     write({joined:true, at:Date.now()});
     var f = dialog.querySelector('[data-signup-step="form"]'), d = dialog.querySelector('[data-signup-step="done"]');
-    f.style.display = 'none'; f.hidden = true;
-    d.hidden = false; d.style.display = 'contents';
+    f.hidden = true; d.hidden = false;
     dialog.setAttribute('aria-labelledby', '');
     d.querySelector('.cg-signup__copy').focus();
   }
