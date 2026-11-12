@@ -794,6 +794,8 @@ a.cg-chip{text-decoration:none}
   /* ---------- Rendering: home ---------- */
   function card(p){
     var v = p.variants[0], imgs = imgsOf(v), media, sub, sw = '';
+    /* Dampener cards lead with the on-racket photo (second in Shopify); the pouch photo shows on hover. */
+    if (p.type === 'damp' && imgs.length > 1) imgs = [imgs[1], imgs[0]].concat(imgs.slice(2));
     if (!imgs.length && p.type === 'set') media = '<div class="cg-pcard__media setmedia cg-court-grid"><div class="cg-pcard__badges">' + badge(['Coming soon','new']) + '</div>' + setPlaceholder(p) + '</div>';
     else {
       var alt = imgs[1] || (p.variants[1] && imgsOf(p.variants[1])[0]) || (p.type === 'set' && imgsOf(dampOf(p).v)[0]);
